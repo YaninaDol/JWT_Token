@@ -9,6 +9,7 @@ namespace JWT_Token.Controllers
     public class RegistrationController:ControllerBase
     {
         private readonly SmartMarketDbContext _context;
+        private readonly HashController hashController = new HashController();
         public RegistrationController(SmartMarketDbContext context)
         {
             _context = context;
@@ -21,13 +22,14 @@ namespace JWT_Token.Controllers
             if (_context.Users.Any(x => x.Login.Equals(Login) && x.Parol.Equals(Password)) == false)
 
             {
-
-                _context.Users.Add(new User() { Login=Login,Parol=Password});
+               
+                string hash = hashController.HashPassword(Password);
+                _context.Users.Add(new User() { Login=Login,Parol= hash });
                 _context.SaveChanges();
                 return Results.Ok();
 
             }
-            return Results.Unauthorized();
+            return Results.BadRequest();
         }
 
     }

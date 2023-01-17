@@ -3,6 +3,7 @@ using JWT_Token.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Runtime.Intrinsics.X86;
 using System.Security.Claims;
 using System.Text;
 
@@ -14,7 +15,7 @@ namespace JWT_Token.Controllers
     public class AuthenticationController:ControllerBase
     {
         private readonly SmartMarketDbContext _context;
-
+        private readonly HashController hashController = new HashController();
         public AuthenticationController(SmartMarketDbContext context)
         {
             _context = context;
@@ -22,13 +23,13 @@ namespace JWT_Token.Controllers
     [HttpPost("LogIn")]
         public IResult LogIn([FromBody] User user)
         {
-            User person = _context.Users.Where(x => x.Login.Equals(user.Login) && x.Parol.Equals(user.Parol)).FirstOrDefault();
+            string hashkod = hashController.HashPassword(user.Parol);
+            User person = _context.Users.Where(x => x.Login.Equals(user.Login) && x.Parol.Equals(hashkod)).FirstOrDefault();
             if (user is null)
             {
                 return Results.BadRequest();
             }
-            //user.Login == "admin" && user.Parol == "admin"
-
+           
             if (person!=null)
             {
                 
