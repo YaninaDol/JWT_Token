@@ -1,4 +1,5 @@
-﻿using JWT_Token.Models;
+﻿using JWT_Token.Data;
+using JWT_Token.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -12,11 +13,16 @@ namespace JWT_Token.Controllers
     [ApiController]
     public class AuthenticationController:ControllerBase
     {
+        private readonly SmartMarketDbContext _context;
 
-        [HttpPost("LogIn")]
+        public AuthenticationController(SmartMarketDbContext context)
+        {
+            _context = context;
+        }
+    [HttpPost("LogIn")]
         public IResult LogIn([FromBody] User user)
         {
-            User person = new UserController().users.Where(x => x.Login.Equals(user.Login) && x.Parol.Equals(user.Parol)).FirstOrDefault();
+            User person = _context.Users.Where(x => x.Login.Equals(user.Login) && x.Parol.Equals(user.Parol)).FirstOrDefault();
             if (user is null)
             {
                 return Results.BadRequest();
@@ -44,5 +50,7 @@ namespace JWT_Token.Controllers
             return Results.Unauthorized();
 
         }
+
+       
     }
 }

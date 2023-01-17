@@ -2,18 +2,19 @@
 using System.Collections.Generic;
 using JWT_Token.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace JWT_Token.Data;
 
 public partial class SmartMarketDbContext : DbContext
 {
-    public SmartMarketDbContext()
-    {
-    }
 
-    public SmartMarketDbContext(DbContextOptions<SmartMarketDbContext> options)
-        : base(options)
+    protected readonly IConfiguration Configuration;
+    
+    public SmartMarketDbContext(IConfiguration configuration)
     {
+        Configuration = configuration;
     }
 
     public virtual DbSet<Category> Categories { get; set; }
@@ -27,9 +28,7 @@ public partial class SmartMarketDbContext : DbContext
     public virtual DbSet<User> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=SmartMarket_db;Trusted_Connection=True;TrustServerCertificate=True;");
-
+        => optionsBuilder.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Category>(entity =>
